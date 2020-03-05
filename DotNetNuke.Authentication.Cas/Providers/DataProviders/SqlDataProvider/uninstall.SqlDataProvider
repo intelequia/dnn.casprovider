@@ -1,0 +1,9 @@
+﻿DELETE {databaseOwner}[{objectQualifier}PortalSettings]
+ WHERE SettingName IN
+ (
+     'Cas_APIKey'
+   , 'Cas_APISecret'
+   , 'Cas_AutoRedirect'
+   , 'Cas_Enabled'
+ )
+GO

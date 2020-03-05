@@ -1,0 +1,107 @@
+<dotnetnuke type="Package" version="5.0">
+  <packages>
+    <package name="CasProvider" type="Auth_System" version="01.00.00">
+      <friendlyName>DNN CAS Auth Provider</friendlyName>
+      <description>
+        The DNN CAS Auth Provider is an Authentication provider for DNN Platform that uses CAS OAuth2 authentication to authenticate users.
+      </description>
+      <iconFile>~/DesktopModules/AuthenticationServices/Cas/Images/cas.png</iconFile>
+      <owner>
+        <name>David Rodriguez</name>
+        <organization>Intelequia Software Solutions</organization>
+        <url>http://davidjrh.intelequia.com</url>
+        <email>davidj@intelequia.com</email>
+      </owner>
+      <license src="CasLicense.txt" />
+      <releaseNotes src="CasReleaseNotes.txt"/>
+      <azureCompatible>true</azureCompatible>
+      <dependencies>
+        <dependency type="CoreVersion">09.03.00</dependency>
+        <dependency type="ManagedPackage" version="01.00.00">Dnn.PersonaBar.UI</dependency>
+      </dependencies>
+
+      <components>
+        <component type="AuthenticationSystem">
+          <authenticationService>
+            <type>Cas</type>
+            <settingsControlSrc>DesktopModules/AuthenticationServices/Cas/Settings.ascx</settingsControlSrc>
+            <loginControlSrc>DesktopModules/AuthenticationServices/Cas/Login.ascx</loginControlSrc>
+            <logoffControlSrc>DesktopModules/AuthenticationServices/Cas/Logoff.ascx</logoffControlSrc>
+          </authenticationService>
+        </component>
+        <component type="Assembly">
+          <assemblies>
+            <assembly>
+              <path>bin</path>
+              <name>DotNetNuke.Authentication.Cas.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>System.IdentityModel.Tokens.Jwt.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Microsoft.IdentityModel.Tokens.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Microsoft.IdentityModel.Logging.dll</name>
+            </assembly>
+            <assembly>
+              <path>bin</path>
+              <name>Microsoft.IdentityModel.JsonWebTokens.dll</name>
+            </assembly>            
+          </assemblies>
+        </component>
+        <component type="ResourceFile">
+          <resourceFiles>
+            <basePath>DesktopModules/AuthenticationServices/Cas</basePath>
+            <resourceFile>
+              <name>Resources.zip</name>
+            </resourceFile>
+          </resourceFiles>
+        </component>
+        <component type="ResourceFile">
+          <resourceFiles>
+            <basePath>DesktopModules/admin/Dnn.PersonaBar/Modules/Dnn.Cas</basePath>
+            <resourceFile>
+              <name>PersonaBarResources.zip</name>
+            </resourceFile>
+          </resourceFiles>
+        </component>
+
+        <component type="PersonaBarMenu">
+          <menu>
+            <identifier>Dnn.Cas</identifier>
+            <moduleName>Cas</moduleName>
+            <controller>DotNetNuke.Authentication.Cas.Components.MenuController, DotNetNuke.Authentication.Cas</controller>
+            <resourceKey>nav_Cas</resourceKey>
+            <path>Cas</path>
+            <parent>Settings</parent>
+            <mobileSupport>true</mobileSupport>
+            <order>10</order>
+          </menu>
+        </component>
+
+        <!-- Database scripts -->
+        <component type="Script">
+          <scripts>
+            <basePath>DesktopModules\AuthenticationServices\Cas</basePath>
+            <script type="Install">
+              <path>Providers\DataProviders\SqlDataProvider</path>
+              <name>01.00.00.SqlDataProvider</name>
+              <version>01.00.00</version>
+            </script>
+
+            <script type="UnInstall" >
+              <path>Providers\DataProviders\SqlDataProvider</path>
+              <name>uninstall.SqlDataProvider</name>
+              <version>01.00.00</version>
+            </script>
+          </scripts>
+        </component>
+        
+      </components>
+    </package>
+  </packages>
+</dotnetnuke>
