@@ -169,12 +169,24 @@
     <value>Enabled</value>
   </data>
   <data name="lblProviderCredentials.Text" xml:space="preserve">
-    <value>Provider credentials</value>
+    <value>Service credentials</value>
   </data>
   <data name="lblTabDescription.Text" xml:space="preserve">
     <value>The DNN CAS Auth Provider is an Authentication provider for DNN Platform that uses CAS OAuth2 flows to authenticate users.</value>
   </data>
   <data name="SaveSettings.Text" xml:space="preserve">
     <value>Save Settings</value>
+  </data>
+  <data name="lblCASDetails.Text" xml:space="preserve">
+    <value>CAS Server</value>
+  </data>
+  <data name="lblServerUrl.Error" xml:space="preserve">
+    <value>You must specify the CAS Server Url</value>
+  </data>
+  <data name="lblServerUrl.Help" xml:space="preserve">
+    <value>Specify the server URL (i.e. https://cas.example.org:8443/cas)</value>
+  </data>
+  <data name="lblServerUrl.Text" xml:space="preserve">
+    <value>Server URL</value>
   </data>
 </root>

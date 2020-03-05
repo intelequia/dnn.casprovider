@@ -23,7 +23,7 @@ const settingsActions = {
                         autoRedirect: data.autoRedirect,
                         apiKey: data.apiKey,
                         apiSecret: data.apiSecret,
-                        tenantId: data.tenantId,
+                        serverUrl: data.serverUrl,
                         clientModified: false
                     }
                 });
@@ -61,7 +61,7 @@ const settingsActions = {
                     autoRedirect: settings.autoRedirect,
                     apiKey: settings.apiKey,
                     apiSecret: settings.apiSecret,
-                    tenantId: settings.tenantId,
+                    serverUrl: settings.serverUrl,
                     clientModified: true
                 }
             });

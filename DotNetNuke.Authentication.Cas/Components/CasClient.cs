@@ -28,12 +28,15 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Script.Serialization;
 using DotNetNuke.Authentication.Cas.Common;
 using DotNetNuke.Entities.Portals;
 using DotNetNuke.Entities.Users;
+using DotNetNuke.Instrumentation;
 using DotNetNuke.Services.Authentication;
 using DotNetNuke.Services.Authentication.OAuth;
 
@@ -43,37 +46,40 @@ namespace DotNetNuke.Authentication.Cas.Components
 {
     public class CasClient : OAuthClientBase
     {
-        private const string TokenEndpointPattern = "https://login.microsoftonline.com/{0}/oauth2/token";
-        private const string LogoutEndpointPattern =
-            "https://login.microsoftonline.com/{0}/oauth2/logout?post_logout_redirect_uri={1}";
-        private const string AuthorizationEndpointPattern = "https://login.microsoftonline.com/{0}/oauth2/authorize";
-        private const string GraphEndpointPattern = "https://graph.windows.net/{0}";
+        private static readonly ILog Logger = LoggerSource.Instance.GetLogger(typeof(CasClient));
+
+        private const string TokenEndpointPattern = "{0}/oauth2.0/accessToken";
+        private const string LogoutEndpointPattern = "{0}/oauth2.0/logout?post_logout_redirect_uri={1}";
+        private const string AuthorizationEndpointPattern = "{0}/oauth2.0/authorize";
+        private const string ProfileEndpointPattern = "{0}/oauth2.0/profile?access_token={1}";
         #region Constructors
 
         private JwtSecurityToken JwtSecurityToken { get; set; }
+        private string AccessToken { get; set; }
         private Uri LogoutEndpoint { get; }
+
+        private CasConfig Settings { get;  }
 
 
         public CasClient(int portalId, AuthMode mode) 
             : base(portalId, mode, "Cas")
         {
-            var config = new CasConfig("Cas", portalId);
+            Settings = new CasConfig("Cas", portalId);
 
             TokenMethod = HttpMethod.POST;
     
             
-            if (!string.IsNullOrEmpty(config.TenantId))
+            if (!string.IsNullOrEmpty(Settings.ServerUrl))
             {
-                TokenEndpoint = new Uri(string.Format(Utils.GetAppSetting("Cas.TokenEndpointPattern", TokenEndpointPattern), config.TenantId));  
-                LogoutEndpoint = new Uri(string.Format(Utils.GetAppSetting("Cas.LogoutEndpointPattern", LogoutEndpointPattern), config.TenantId, UrlEncode(HttpContext.Current.Request.Url.ToString())));
-                AuthorizationEndpoint = new Uri(string.Format(Utils.GetAppSetting("Cas.AuthorizationEndpointPattern", AuthorizationEndpointPattern), config.TenantId));
-                MeGraphEndpoint = new Uri(string.Format(Utils.GetAppSetting("Cas.GraphEndpointPattern", GraphEndpointPattern), config.TenantId));
+                TokenEndpoint = new Uri(string.Format(Utils.GetAppSetting("Cas.TokenEndpointPattern", TokenEndpointPattern), Settings.ServerUrl));  
+                LogoutEndpoint = new Uri(string.Format(Utils.GetAppSetting("Cas.LogoutEndpointPattern", LogoutEndpointPattern), Settings.ServerUrl, UrlEncode(HttpContext.Current.Request.Url.ToString())));
+                AuthorizationEndpoint = new Uri(string.Format(Utils.GetAppSetting("Cas.AuthorizationEndpointPattern", AuthorizationEndpointPattern), Settings.ServerUrl));
             }
 
             Scope = "email";
 
             AuthTokenName = "CasUserToken";
-            APIResource = config.APIKey;
+            APIResource = Settings.APIKey;
             OAuthVersion = "2.0";
             LoadTokenCookie(string.Empty);
             JwtSecurityToken = null;
@@ -128,9 +134,50 @@ namespace DotNetNuke.Authentication.Cas.Components
             }
             var jsonSerializer = new JavaScriptSerializer();
             var tokenDictionary = jsonSerializer.DeserializeObject(responseText) as Dictionary<string, object>;
-            var token = Convert.ToString(tokenDictionary["access_token"]);
-            JwtSecurityToken = new JwtSecurityToken(Convert.ToString(tokenDictionary["id_token"]));                        
-            return token;
+            if (!tokenDictionary.ContainsKey("access_token"))
+                throw new SecurityTokenException("The token does not contain the 'access_token'");
+            AccessToken = Convert.ToString(tokenDictionary["access_token"]);
+
+            // Get the user profile
+            var profileEndPoint = new Uri(string.Format(Utils.GetAppSetting("Cas.ProfileEndpointPattern", ProfileEndpointPattern), Settings.ServerUrl, AccessToken));
+            var request = WebRequest.CreateDefault(profileEndPoint);
+            request.Method = "GET";
+
+            var profile = string.Empty;
+            try
+            {
+                using (var response = request.GetResponse())
+                {
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        if (responseStream != null)
+                        {
+                            using (var responseReader = new StreamReader(responseStream))
+                            {
+                                profile = responseReader.ReadToEnd();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                using (Stream responseStream = ex.Response.GetResponseStream())
+                {
+                    if (responseStream != null)
+                    {
+                        using (var responseReader = new StreamReader(responseStream))
+                        {
+                            Logger.ErrorFormat("WebResponse exception: {0}", responseReader.ReadToEnd());
+                        }
+                    }
+                }
+            }
+            if (string.IsNullOrEmpty(profile))
+                throw new SecurityTokenException("Could not obtain the profile. Check the log4net logs for details.");
+
+            JwtSecurityToken = new JwtSecurityToken(profile);                        
+            return AccessToken;
         }
 
         public override TUserData GetCurrentUser<TUserData>()

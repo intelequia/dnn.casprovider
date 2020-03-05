@@ -29,6 +29,8 @@ namespace DotNetNuke.Authentication.Cas.Services
     [DataContract]
     public class CasProviderSettings
     {
+        [DataMember(Name = "serverUrl")]
+        public string ServerUrl { get; set; }
         [DataMember(Name = "apiKey")]
         public string ApiKey { get; set; }
         [DataMember(Name = "apiSecret")]
@@ -43,6 +45,7 @@ namespace DotNetNuke.Authentication.Cas.Services
             var config = new CasConfig(service, portalId);
             return new CasProviderSettings
             {
+                ServerUrl = config.ServerUrl,
                 ApiKey = config.APIKey,
                 ApiSecret = config.APISecret,
                 AutoRedirect = config.AutoRedirect,
@@ -54,6 +57,7 @@ namespace DotNetNuke.Authentication.Cas.Services
         {
             var config = new CasConfig(service, portalId)
             {
+                ServerUrl = settings.ServerUrl,
                 APIKey = settings.ApiKey,
                 APISecret = settings.ApiSecret,
                 AutoRedirect = settings.AutoRedirect,

@@ -36,6 +36,7 @@ namespace DotNetNuke.Authentication.Cas.Components
         { }
         protected internal CasConfig(string service, int portalId) : base(service, portalId)
         {
+            ServerUrl = PortalController.GetPortalSetting(Service + "_ServerUrl", portalId, "");
             APIKey = PortalController.GetPortalSetting(Service + "_ApiKey", portalId, "");
             APISecret = PortalController.GetPortalSetting(Service + "_ApiSecret", portalId, "");
             AutoRedirect = bool.Parse(PortalController.GetPortalSetting(Service + "_AutoRedirect", portalId, "false"));
@@ -43,7 +44,7 @@ namespace DotNetNuke.Authentication.Cas.Components
         }
 
         [SortOrder(1)]
-        public string TenantId { get; set; }
+        public string ServerUrl { get; set; }
         [SortOrder(2)]
         public bool AutoRedirect { get; set; }
 
@@ -66,6 +67,7 @@ namespace DotNetNuke.Authentication.Cas.Components
 
         public static void UpdateConfig(CasConfig config)
         {
+            PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_ServerUrl", config.ServerUrl);
             PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_ApiKey", config.APIKey);
             PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_ApiSecret", config.APISecret);
             PortalController.UpdatePortalSetting(config.PortalID, config.Service + "_AutoRedirect", config.AutoRedirect.ToString());

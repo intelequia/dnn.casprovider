@@ -10,7 +10,7 @@ let store = configureStore({enabled: false, instrumentationKey: ""});
 application.dispatch = store.dispatch;
 application.init();
 
-const appContainer = document.getElementById("cas-container");
+const appContainer = document.getElementById("Cas-container");
 render(
     <Provider store={store}>
         <Root />

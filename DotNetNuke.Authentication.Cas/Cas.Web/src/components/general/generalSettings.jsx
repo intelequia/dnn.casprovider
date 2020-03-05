@@ -16,7 +16,7 @@ class GeneralSettings extends Component {
             error: {
                 appId: false,
                 appSecret: false,
-                tenantId: false
+                serverUrl: false
             }
         };
     }
@@ -32,7 +32,7 @@ class GeneralSettings extends Component {
 
         state.error["appId"] = (nextProps.apiKey === "");
         state.error["appSecret"] = (nextProps.apiSecret === "");
-        state.error["tenantId"] = (nextProps.tenantId === "");
+        state.error["serverUrl"] = (nextProps.serverUrl === "");
     }
 
     onSettingChange(key, event) {
@@ -43,7 +43,7 @@ class GeneralSettings extends Component {
             autoRedirect: (key === "AutoRedirect") ? !props.autoRedirect : props.autoRedirect,
             apiKey: (key === "AppId") ? event.target.value : props.apiKey,
             apiSecret: (key === "AppSecret") ? event.target.value : props.apiSecret,
-            tenantId: (key === "TenantId") ? event.target.value : props.tenantId
+            serverUrl: (key === "ServerUrl") ? event.target.value : props.serverUrl
         }));
     }
 
@@ -60,7 +60,7 @@ class GeneralSettings extends Component {
             autoRedirect: props.autoRedirect,
             apiKey: props.apiKey,
             apiSecret: props.apiSecret,
-            tenantId: props.tenantId
+            serverUrl: props.serverUrl
         }, () => {
             utils.utilities.notify(resx.get("SettingsUpdateSuccess"));
             this.setState({
@@ -94,17 +94,17 @@ class GeneralSettings extends Component {
                 </GridCell>
                 <GridCell columnSize={100} className="directory-section">
                     <GridCell columnSize={50}>
-                        <h1>{resx.get("lblDirectory")}</h1>
+                        <h1>{resx.get("lblCASDetails")}</h1>
                         <div className="editor-row">
                             <SingleLineInputWithError
                                 withLabel={true}
-                                label={resx.get("lblTenantId")}
+                                label={resx.get("lblServerUrl")}
                                 enabled={true}
-                                error={this.state.error.tenantId}
-                                errorMessage={resx.get("lblTenantId.Error")}
-                                tooltipMessage={resx.get("lblTenantId.Help")}
-                                value={this.props.tenantId}
-                                onChange={this.onSettingChange.bind(this, "TenantId")} />
+                                error={this.state.error.serverUrl}
+                                errorMessage={resx.get("lblServerUrl.Error")}
+                                tooltipMessage={resx.get("lblServerUrl.Help")}
+                                value={this.props.serverUrl}
+                                onChange={this.onSettingChange.bind(this, "ServerUrl")} />
                         </div>
                     </GridCell>
                 </GridCell>
@@ -149,7 +149,7 @@ class GeneralSettings extends Component {
                             {resx.get("Cancel")}
                         </Button>
                         <Button
-                            disabled={this.state.error.appId || this.state.error.appSecret || this.state.error.tenantId}
+                            disabled={this.state.error.appId || this.state.error.appSecret || this.state.error.serverUrl}
                             type="primary"
                             onClick={this.onClickSave.bind(this)}
                         >
@@ -168,7 +168,7 @@ GeneralSettings.propTypes = {
     autoRedirect: PropTypes.bool,
     apiKey: PropTypes.string,
     apiSecret: PropTypes.string,
-    tenantId: PropTypes.string
+    serverUrl: PropTypes.string
 };
 
 
@@ -178,7 +178,7 @@ function mapStateToProps(state) {
         autoRedirect: state.settings.autoRedirect,
         apiKey: state.settings.apiKey,
         apiSecret: state.settings.apiSecret,
-        tenantId: state.settings.tenantId
+        serverUrl: state.settings.serverUrl
     };
 }
 
